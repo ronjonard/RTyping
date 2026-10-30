@@ -27,13 +27,21 @@ app.logger.setLevel(logging.INFO)
 
 # MySQL connection
 def get_db_connection():
-    return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        port=int(os.getenv("DB_PORT", "3306")),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "Rtyping")
-    )
+    connection_options = {
+        "host": os.getenv("DB_HOST", "localhost"),
+        "port": int(os.getenv("DB_PORT", "3306")),
+        "user": os.getenv("DB_USER", "root"),
+        "password": os.getenv("DB_PASSWORD", ""),
+        "database": os.getenv("DB_NAME", "Rtyping")
+    }
+
+    ssl_ca = os.getenv("DB_SSL_CA")
+
+    if ssl_ca:
+        connection_options["ssl_ca"] = ssl_ca
+        connection_options["ssl_verify_cert"] = True
+
+    return mysql.connector.connect(**connection_options)
 
 
 # Send password-reset email
