@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTyping Test</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="brand">
+            <div class="logo">RT</div>
+            <span class="brand-name">RTYPING TEST</span>
+        </div>
+
+       
+<div class="nav-actions">
+    <span class="user-icon">👤</span>
+
+    {% if session.get('user_id') %}
+        <span class="signin">
+            {{ session.get('username') }}
+        </span>
+
+        <form action="{{ url_for('logout') }}" method="POST"
+              style="display:inline;">
+            <button type="submit" class="signin"
+                    style="background:transparent; cursor:pointer;">
+                SIGN OUT
+            </button>
+        </form>
+    {% else %}
+        <a href="{{ url_for('login') }}" class="signin">
+            SIGN IN
+        </a>
+    {% endif %}
+
+    <button class="menu-button" id="menuButton"
+            aria-label="Open menu"
+            aria-expanded="false">
+        ☰
+    </button>
+</div>
+
+
+        <nav class="dropdown-menu" id="dropdownMenu">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('login') }}">Sign In</a>
+            <a href="{{ url_for('history') }}">Typing History</a>
+        </nav>
+    </header>
+
+    <main class="homepage">
+        <div class="keyboard keyboard-left">⌨️</div>
+        <div class="keyboard keyboard-right">⌨️</div>
+
+        <section class="test-settings">
+            <h1>TEST YOUR TYPING<br>SPEED</h1>
+            <p class="subtitle">Customize your typing test</p>
+
+            <label for="difficulty">DIFFICULTY</label>
+            <select id="difficulty" name="difficulty">
+                <option value="easy">EASY</option>
+                <option value="medium">MEDIUM</option>
+                <option value="hard" selected>HARD</option>
+            </select>
+
+            <label for="duration">TIME</label>
+            <select id="duration" name="duration">
+                <option value="30">30 SECONDS</option>
+                <option value="60" selected>1 MINUTE</option>
+                <option value="120">2 MINUTES</option>
+                <option value="300">5 MINUTES</option>
+            </select>
+
+            <button class="begin-button" id="beginButton" type="button">
+                BEGIN TYPING
+            </button>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
+</body>
+</html>

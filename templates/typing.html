@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Typing Test | RTyping</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='typing.css') }}">
+
+    <script src="{{ url_for('static', filename='typing.js') }}"
+            defer></script>
+</head>
+
+<body class="typing-page"
+      data-duration="{{ duration }}"
+      data-difficulty="{{ difficulty }}"
+      data-paragraph-id="{{ paragraph_id }}">
+
+    
+<header class="navbar">
+    <div class="brand">
+        <div class="logo">RT</div>
+        <span class="brand-name">RTYPING TEST</span>
+    </div>
+
+    <div class="nav-actions">
+        <span class="user-icon">👤</span>
+
+        {% if session.get('user_id') %}
+            <span class="signin">
+                {{ session.get('username') }}
+            </span>
+
+            <form action="{{ url_for('logout') }}" method="POST"
+                  style="display:inline;">
+                <button type="submit" class="signin"
+                        style="background:transparent; cursor:pointer;">
+                    SIGN OUT
+                </button>
+            </form>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="signin">
+                SIGN IN
+            </a>
+        {% endif %}
+    </div>
+</header>
+
+
+    <main class="typing-main">
+
+        <!-- TEST IN PROGRESS -->
+        <section id="test-screen">
+            <h1>TYPING TEST IN PROGRESS</h1>
+
+            <p class="timer-label">
+                TIME: <span id="timer">00:00</span>
+            </p>
+
+            <div class="paragraph-card">
+               <p id="typing-text">{{ paragraph }}</p>
+            
+
+           <textarea
+                     id="typing-input"
+                     placeholder="Start typing here..."
+                     spellcheck="false"
+                     autocomplete="off"
+                     autocapitalize="off"
+                     aria-label="Type the displayed paragraph"></textarea>
+           </div>
+            <div class="typing-buttons">
+                <button id="restart-button" class="action-button restart">
+                    RESTART
+                </button>
+
+                <button id="exit-button" class="action-button exit">
+                    EXIT
+                </button>
+            </div>
+        </section>
+
+        <!-- TEST COMPLETE -->
+        <section id="result-screen" hidden>
+            <h1>TYPING TEST COMPLETE</h1>
+
+            <div class="results-card">
+                <h2>YOUR SCORE</h2>
+
+                <div class="score-circles">
+                    <div class="score-item">
+                        <div class="score-circle">
+                            <span id="final-wpm">0</span>
+                        </div>
+                        <h3>WPM</h3>
+                    </div>
+
+                    <div class="score-item">
+                        <div class="score-circle">
+                            <span id="final-accuracy">100%</span>
+                        </div>
+                        <h3>ACCURACY</h3>
+                    </div>
+                </div>
+
+                <p>Time: <span id="final-time">00:00</span></p>
+                <p>Errors: <span id="final-errors">0</span></p>
+
+                <p id="save-status" class="save-status"></p>
+            </div>
+
+            <div class="typing-buttons">
+                <button id="try-again-button"
+                        class="action-button restart">
+                    TRY AGAIN
+                </button>
+
+                <a href="{{ url_for('index') }}"
+                   class="action-button main-menu">
+                    MAIN MENU
+                </a>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>

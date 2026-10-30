@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | RTyping</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        .auth-container {
+            width: 90%;
+            max-width: 450px;
+            margin: 45px auto;
+            padding: 35px;
+            background: #eeeeee;
+            color: #222;
+            border-radius: 20px;
+            box-shadow: 8px 8px 0 #222;
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .auth-container p {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .auth-container label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0 8px;
+        }
+
+        .auth-container input {
+            width: 100%;
+            padding: 13px;
+            border: 2px solid #aaa;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .auth-button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #08bf68;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .auth-button:hover {
+            background: #079f58;
+        }
+
+        .auth-links {
+            margin-top: 20px;
+            text-align: center;
+            line-height: 2;
+        }
+
+        .auth-links a,
+        .back-home {
+            color: #1800b5;
+            font-weight: bold;
+        }
+
+        .back-home {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .message {
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.message.success {
+    background: #d4ffe5;
+    color: #087a38;
+    border: 2px solid #08bf68;
+    box-shadow: 0 0 8px #08bf68, 0 0 16px #08bf68;
+}
+
+.message.error {
+    background: #ffe0e0;
+    color: #8b0000;
+    border: 2px solid #ff4444;
+    box-shadow: 0 0 8px #ff4444, 0 0 16px #ff4444;
+}
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="brand">
+            <div class="logo">RT</div>
+            <span class="brand-name">RTYPING TEST</span>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <h1>CREATE ACCOUNT</h1>
+        <p>Join RTyping and track your typing progress!</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+             {% if messages %}
+                {% for category, message in messages %}
+                     <div class="message {{ category }}">{{ message }}</div>
+                 {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+        <form action="{{ url_for('register') }}" method="POST">
+            <label for="username">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Choose a username"
+                maxlength="50"
+                autocomplete="username"
+                required
+            >
+
+            <label for="email">Email Address</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                maxlength="100"
+                autocomplete="email"
+                required
+            >
+
+            <label for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Create a password (at least 8 characters)"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+
+            <label for="confirm_password">Confirm Password</label>
+            <input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                placeholder="Enter your password again"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+
+            <button type="submit" class="auth-button">
+                SIGN UP
+            </button>
+        </form>
+
+        <div class="auth-links">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Sign In</a>
+        </div>
+
+        <a href="{{ url_for('index') }}" class="back-home">
+            ← Back to Home
+        </a>
+    </main>
+
+</body>
+</html>

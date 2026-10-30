@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing History | RTyping</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}">
+</head>
+
+<body class="history-page">
+
+    
+<header class="navbar">
+    <div class="brand">
+        <div class="logo">RT</div>
+        <span class="brand-name">RTYPING TEST</span>
+    </div>
+
+    <div class="nav-actions">
+        <span class="user-icon">👤</span>
+
+        {% if session.get('user_id') %}
+            <span class="signin">
+                {{ session.get('username') }}
+            </span>
+
+            <form action="{{ url_for('logout') }}" method="POST"
+                  style="display:inline;">
+                <button type="submit" class="signin"
+                        style="background:transparent; cursor:pointer;">
+                    SIGN OUT
+                </button>
+            </form>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="signin">
+                SIGN IN
+            </a>
+        {% endif %}
+    </div>
+</header>
+
+
+    <main class="history-main">
+
+        <h1>MY TYPING HISTORY</h1>
+
+        <p class="history-subtitle">
+            Review your previous typing test performances.
+        </p>
+
+        {% if tests %}
+
+        <div class="history-summary">
+            <div class="summary-box">
+                <span>{{ tests|length }}</span>
+                <p>Total Tests</p>
+            </div>
+
+            <div class="summary-box">
+                <span>
+                    {{ "%.1f"|format(
+                        (tests|sum(attribute='wpm')) / (tests|length)
+                    ) }}
+                </span>
+                <p>Average WPM</p>
+            </div>
+
+            <div class="summary-box">
+                <span>
+                    {{ "%.1f"|format(
+                        (tests|sum(attribute='accuracy')) / (tests|length)
+                    ) }}%
+                </span>
+                <p>Average Accuracy</p>
+            </div>
+        </div>
+
+        <div class="history-table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date Completed</th>
+                        <th>WPM</th>
+                        <th>Accuracy</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for test in tests %}
+                    <tr>
+                        <td>
+                            {% if test.completed_at %}
+                                {{ test.completed_at.strftime('%b %d, %Y %I:%M %p') }}
+                            {% else %}
+                                Not available
+                            {% endif %}
+                        </td>
+
+                        <td>{{ test.wpm }}</td>
+                        <td>{{ test.accuracy }}%</td>
+                        <td>{{ test.duration_seconds }} sec</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+
+        <div class="empty-history">
+            <h2>No Typing History Yet</h2>
+
+            <p>
+                You haven't completed any saved typing tests.
+                Complete a typing test to see your results here.
+            </p>
+
+            <a href="{{ url_for('index') }}" class="history-button">
+                START TYPING
+            </a>
+        </div>
+
+        {% endif %}
+
+        <a href="{{ url_for('index') }}" class="back-button">
+            ← MAIN MENU
+        </a>
+
+    </main>
+
+</body>
+</html>

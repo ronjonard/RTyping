@@ -1,0 +1,251 @@
+
+/* ===== RTyping History Page ===== */
+
+.history-page {
+    margin: 0;
+    min-height: 100vh;
+    background: #555555;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Navigation Username */
+
+.history-username {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* ===== Main Content ===== */
+
+.history-main {
+    width: min(92%, 950px);
+    margin: 30px auto;
+    text-align: center;
+}
+
+.history-main h1 {
+    margin-bottom: 7px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(25px, 4vw, 35px);
+    font-style: italic;
+    font-weight: 900;
+}
+
+.history-subtitle {
+    margin-bottom: 25px;
+    color: #e0e0e0;
+    font-size: 15px;
+}
+
+/* ===== Summary Boxes ===== */
+
+.history-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 27px;
+}
+
+.summary-box {
+    padding: 17px 10px;
+    border: 3px solid #858181;
+    border-radius: 15px;
+    background: #484f73;
+    box-shadow: 4px 5px 0 #242424;
+}
+
+.summary-box span {
+    color: #71caff;
+    font-size: 29px;
+    font-weight: 900;
+}
+
+.summary-box p {
+    margin: 7px 0 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* ===== History Table ===== */
+
+.history-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 3px solid #858181;
+    border-radius: 14px;
+    background: #999393;
+    box-shadow: 6px 7px 0 #242424;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #171717;
+}
+
+.history-table th {
+    padding: 14px 10px;
+    background: #1800b8;
+    color: white;
+    font-size: 14px;
+}
+
+.history-table td {
+    padding: 13px 10px;
+    border-bottom: 1px solid #777777;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.history-table tbody tr:nth-child(even),
+.history-table tbody tr:nth-child(odd) {
+    background: #6df2dc;
+}
+
+.history-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ===== Empty History ===== */
+
+.empty-history {
+    padding: 40px 18px;
+    border: 3px solid #858181;
+    border-radius: 17px;
+    background: #484f73;
+    box-shadow: 6px 7px 0 #242424;
+}
+
+.empty-history h2 {
+    font-size: 24px;
+}
+
+.empty-history p {
+    max-width: 450px;
+    margin: 12px auto 20px;
+    line-height: 1.5;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+/* ===== Buttons ===== */
+
+.history-button,
+.back-button {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 900;
+    font-style: italic;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.history-button {
+    background: #05bd70;
+}
+
+.back-button {
+    margin-top: 25px;
+    background: #507cf5;
+    font-size: 18px;
+}
+
+/* ===== Tablet ===== */
+
+@media (min-width: 601px) and (max-width: 900px) {
+    .history-main {
+        width: 94%;
+    }
+
+    .history-summary {
+        gap: 12px;
+    }
+
+    .summary-box span {
+        font-size: 25px;
+    }
+}
+
+/* ===== Mobile ===== */
+
+@media (max-width: 650px) {
+    .history-username {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .history-main {
+        width: 94%;
+        margin-top: 24px;
+    }
+
+    .history-main h1 {
+        font-size: 27px;
+    }
+
+    .history-subtitle {
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .history-summary {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 22px;
+    }
+
+    .summary-box {
+        padding: 14px 10px;
+    }
+
+    .summary-box span {
+        font-size: 25px;
+    }
+
+    .summary-box p {
+        font-size: 13px;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 11px 8px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .empty-history {
+        padding: 30px 14px;
+    }
+
+    .empty-history h2 {
+        font-size: 21px;
+    }
+
+    .empty-history p {
+        font-size: 13px;
+    }
+
+    .back-button {
+        margin-top: 22px;
+        font-size: 16px;
+    }
+}
+
+/* ===== Very Small Mobile ===== */
+
+@media (max-width: 360px) {
+    .history-main h1 {
+        font-size: 24px;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 9px 6px;
+        font-size: 11px;
+    }
+}
