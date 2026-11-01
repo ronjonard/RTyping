@@ -1,11 +1,11 @@
+
 import os
 import hashlib
 import secrets
-import smtplib
 import logging
+import resend
 
 from datetime import datetime, timedelta
-from email.message import EmailMessage
 
 import mysql.connector
 from mysql.connector import IntegrityError
@@ -44,44 +44,43 @@ def get_db_connection():
     return mysql.connector.connect(**connection_options)
 
 
-# Send password-reset email
+# Send password-reset email using Resend
 def send_reset_email(recipient, reset_link):
-    message = EmailMessage()
-    message["Subject"] = "Reset Your RTyping Password"
-    message["From"] = os.getenv("MAIL_USERNAME")
-    message["To"] = recipient
+    api_key = os.getenv("RESEND_API_KEY")
 
-    message.set_content(
-        "Hello,\n\n"
-        "We received a request to reset your RTyping password.\n\n"
-        f"Use this link to choose a new password:\n{reset_link}\n\n"
-        "This link expires in 30 minutes and can only be used once.\n"
-        "If you did not request this, you can ignore this email.\n"
-    )
+    if not api_key:
+        raise RuntimeError("RESEND_API_KEY is not configured.")
 
-    with smtplib.SMTP_SSL(
-        os.getenv("MAIL_HOST", "smtp.gmail.com"),
-        int(os.getenv("MAIL_PORT", "465")),
-        timeout=20
-    ) as smtp:
-        smtp.login(
-            os.getenv("MAIL_USERNAME"),
-            os.getenv("MAIL_PASSWORD")
+    resend.api_key = api_key
+
+    params = {
+        "from": os.getenv("MAIL_FROM", "onboarding@resend.dev"),
+        "to": [recipient],
+        "subject": "Reset Your RTyping Password",
+        "text": (
+            "Hello,\n\n"
+            "We received a request to reset your RTyping password.\n\n"
+            f"Use this link to choose a new password:\n{reset_link}\n\n"
+            "This link expires in 30 minutes and can only be used once.\n"
+            "If you did not request this, you can ignore this email.\n"
         )
-        smtp.send_message(message)
+    }
+
+    resend.Emails.send(params)
 
 
 # Homepage
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
 @app.route("/about")
 def about():
     return render_template("about.html")
 
 
 # Sign Up
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -159,7 +158,6 @@ def register():
                 conn.close()
 
     return render_template("register.html")
-
 
 
 # Sign In
@@ -265,7 +263,7 @@ def forgot_password():
 
                 try:
                     send_reset_email(email, reset_link)
-                    print("DEBUG: Email sent successfully!")
+                    app.logger.info("Password-reset email sent successfully.")
 
                 except Exception:
                     app.logger.exception("Password-reset email failed")
@@ -423,7 +421,6 @@ def history():
             connection.close()
 
 
-
 # Typing Test
 @app.route("/typing")
 def typing():
@@ -436,7 +433,6 @@ def typing():
     if duration not in ["30", "60", "120", "300"]:
         duration = "60"
 
-    # Convert difficulty to match MySQL ENUM values
     selected_difficulty = difficulty.capitalize()
 
     connection = None
@@ -446,7 +442,6 @@ def typing():
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
 
-        # Retrieve one random paragraph
         cursor.execute(
             """
             SELECT paragraph_id, paragraph_text
@@ -472,7 +467,7 @@ def typing():
             duration=duration,
             paragraph=paragraph,
             paragraph_id=result["paragraph_id"]
-)
+        )
 
     except mysql.connector.Error:
         app.logger.exception("Unable to retrieve typing paragraph")
@@ -485,8 +480,6 @@ def typing():
 
         if connection and connection.is_connected():
             connection.close()
-
-
 
 
 # Save Typing Result
@@ -570,7 +563,6 @@ def save_result():
 
         if connection and connection.is_connected():
             connection.close()
-
 
 
 if __name__ == "__main__":
