@@ -1,9 +1,7 @@
-
 import os
 import hashlib
 import secrets
 import logging
-import resend
 import requests
 
 from datetime import datetime, timedelta
