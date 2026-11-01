@@ -332,13 +332,13 @@ body {
     }
 
     .keyboard-left {
-        top: 115px;
-        left: 0;
+        top: 50px;
+        left: -1;
     }
 
     .keyboard-right {
-        right: 0;
-        bottom: 25px;
+        right: -1;
+        bottom: 470px;
     }
 }
 

@@ -75,9 +75,13 @@ def send_reset_email(recipient, reset_link):
 @app.route("/")
 def index():
     return render_template("index.html")
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 
 # Sign Up
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -86,21 +90,25 @@ def register():
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
 
-        if not username or not email or not password:
-            flash("Please fill in all fields.", "error")
-            return redirect(url_for("register"))
+        def registration_error(message):
+            flash(message, "error")
+            return render_template(
+                "register.html",
+                username=username,
+                email=email
+            )
+
+        if not username or not email or not password or not confirm_password:
+            return registration_error("Please fill in all fields.")
 
         if len(username) > 50 or len(email) > 100:
-            flash("Your username or email is too long.", "error")
-            return redirect(url_for("register"))
+            return registration_error("Your username or email is too long.")
 
         if len(password) < 8:
-            flash("Password must be at least 8 characters.", "error")
-            return redirect(url_for("register"))
+            return registration_error("Password must be at least 8 characters.")
 
         if password != confirm_password:
-            flash("Passwords do not match.", "error")
-            return redirect(url_for("register"))
+            return registration_error("Passwords do not match.")
 
         conn = None
         cursor = None
@@ -129,16 +137,19 @@ def register():
             if conn and conn.is_connected():
                 conn.rollback()
 
-            flash("That email address is already registered.", "error")
-            return redirect(url_for("register"))
+            return registration_error(
+                "That email address is already registered."
+            )
 
         except mysql.connector.Error:
             if conn and conn.is_connected():
                 conn.rollback()
 
             app.logger.exception("Registration database error")
-            flash("Unable to create your account. Please try again.", "error")
-            return redirect(url_for("register"))
+
+            return registration_error(
+                "Unable to create your account. Please try again."
+            )
 
         finally:
             if cursor:
@@ -148,6 +159,7 @@ def register():
                 conn.close()
 
     return render_template("register.html")
+
 
 
 # Sign In

@@ -220,7 +220,7 @@ body::-webkit-scrollbar {
     height: 1px;
     opacity: 0;
     left: 0;
-    bottom: 0;
+    top: 0;
     padding: 0;
     border: 0;
     pointer-events: none;
@@ -313,21 +313,51 @@ body::-webkit-scrollbar {
     min-width: 0;
 }
 
+/* ===== Dynamic Score Circles ===== */
+
 .score-circle {
+    --progress: 0%;
+    --ring-size: 18px;
+
+    position: relative;
+    isolation: isolate;
+
     width: 175px;
     aspect-ratio: 1;
     margin: 0 auto;
 
-    border: 18px solid #268ac7;
+    border: none;
     border-radius: 50%;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: #f6f6f6;
+    background: conic-gradient(
+        #268ac7 var(--progress),
+        #d5d5d5 0
+    );
+
     color: #222222;
     font-size: 42px;
+}
+
+/* Inner white circle */
+
+.score-circle::before {
+    content: "";
+    position: absolute;
+    inset: var(--ring-size);
+    background: #f6f6f6;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+/* Keep the score number above the inner circle */
+
+.score-circle > span {
+    position: relative;
+    z-index: 1;
 }
 
 .score-item h3 {
@@ -405,7 +435,7 @@ body::-webkit-scrollbar {
 
     .score-circle {
         width: 145px;
-        border-width: 14px;
+        --ring-size: 14px;
         font-size: 35px;
     }
 
@@ -463,7 +493,7 @@ body::-webkit-scrollbar {
 
     .score-circle {
         width: 135px;
-        border-width: 14px;
+        --ring-size: 14px;
         font-size: 34px;
     }
 
@@ -539,6 +569,11 @@ body::-webkit-scrollbar {
         border-width: 3px;
         border-radius: 18px;
 
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scroll-behavior: auto;
+        scroll-padding: 20px;
+
         box-shadow:
             5px 6px 0 #242424,
             10px 11px 0 #444444;
@@ -580,7 +615,7 @@ body::-webkit-scrollbar {
 
     .score-circle {
         width: clamp(75px, 23vw, 105px);
-        border-width: 9px;
+        --ring-size: 9px;
         font-size: 25px;
     }
 
@@ -643,8 +678,8 @@ body::-webkit-scrollbar {
 
     .score-circle {
         width: 72px;
+        --ring-size: 7px;
         font-size: 21px;
-        border-width: 7px;
     }
 
     .score-item h3 {

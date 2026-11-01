@@ -135,6 +135,7 @@
                 placeholder="Choose a username"
                 maxlength="50"
                 autocomplete="username"
+                value="{{ username|default('') }}"
                 required
             >
 
@@ -146,6 +147,7 @@
                 placeholder="Enter your email"
                 maxlength="100"
                 autocomplete="email"
+                value="{{ email|default('') }}"
                 required
             >
 

@@ -19,11 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const paragraphCard = document.querySelector(".paragraph-card");
 
-    // Get the paragraph supplied by Flask
     const selectedParagraph = typingText.textContent.trim();
-
     const duration = Number.parseInt(page.dataset.duration, 10) || 60;
     const paragraphId = Number.parseInt(page.dataset.paragraphId, 10);
+    const isMobile = window.matchMedia("(max-width: 600px)").matches;
 
     let remaining = duration;
     let timerId = null;
@@ -37,36 +36,52 @@ document.addEventListener("DOMContentLoaded", () => {
         const secs = seconds % 60;
 
         return String(mins).padStart(2, "0") + ":" +
-               String(secs).padStart(2, "0");
+            String(secs).padStart(2, "0");
     }
 
-    // Automatically scroll to keep the current character visible
-    
-function scrollToCurrentCharacter() {
-    const current = typingText.querySelector(".current");
+    /* ===== Focus Typing Input ===== */
 
-    if (!current) return;
+    function focusTypingInput() {
+        if (finished) return;
 
-    const cardRect = paragraphCard.getBoundingClientRect();
-    const currentRect = current.getBoundingClientRect();
-
-    // Start scrolling when the current character reaches
-    // around 1/3 of the card's visible height from the bottom.
-    const scrollTrigger = cardRect.bottom - (cardRect.height / 3);
-
-    if (currentRect.bottom > scrollTrigger) {
-        paragraphCard.scrollTop +=
-            currentRect.bottom - scrollTrigger;
+        typingInput.focus({ preventScroll: true });
     }
-}
 
+    /* ===== Scroll to Current Character ===== */
+
+    function scrollToCurrentCharacter() {
+        const current = typingText.querySelector(".current");
+
+        if (!current) return;
+
+        const cardRect = paragraphCard.getBoundingClientRect();
+        const currentRect = current.getBoundingClientRect();
+
+        const bottomLimit = isMobile
+            ? cardRect.bottom - 30
+            : cardRect.bottom - (cardRect.height / 3);
+
+        const topLimit = cardRect.top + 20;
+
+        if (currentRect.bottom > bottomLimit) {
+            const scrollAmount = currentRect.bottom - bottomLimit;
+            paragraphCard.scrollTop += scrollAmount;
+        } else if (currentRect.top < topLimit) {
+            const scrollAmount = topLimit - currentRect.top;
+            paragraphCard.scrollTop -= scrollAmount;
+        }
+    }
+
+    /* ===== Display Paragraph ===== */
 
     function renderParagraph() {
         const typed = typingInput.value;
+
         typingText.replaceChildren();
 
         for (let i = 0; i < selectedParagraph.length; i++) {
             const span = document.createElement("span");
+
             span.textContent = selectedParagraph[i];
 
             if (i < typed.length) {
@@ -85,8 +100,11 @@ function scrollToCurrentCharacter() {
         scrollToCurrentCharacter();
     }
 
+    /* ===== Calculate Results ===== */
+
     function calculateStats() {
         const typed = typingInput.value;
+
         let correctCharacters = 0;
         let totalErrors = 0;
 
@@ -123,6 +141,37 @@ function scrollToCurrentCharacter() {
         };
     }
 
+    /* ===== Update Score Circle Fill ===== */
+
+    function updateScoreCircle(element, percentage) {
+        const circle = element.closest(".score-circle");
+
+        if (!circle) return;
+
+        const progress = Math.max(
+            0,
+            Math.min(100, percentage)
+        );
+
+        circle.style.setProperty(
+            "--progress",
+            progress + "%"
+        );
+    }
+
+    function updateScoreCircles(stats) {
+        // 120 WPM or higher = full circle
+        const wpmProgress = (stats.wpm / 120) * 100;
+
+        // 100% accuracy = full circle
+        const accuracyProgress = stats.accuracy;
+
+        updateScoreCircle(finalWpm, wpmProgress);
+        updateScoreCircle(finalAccuracy, accuracyProgress);
+    }
+
+    /* ===== Start Timer ===== */
+
     function startTimer() {
         if (started || finished) return;
 
@@ -131,6 +180,7 @@ function scrollToCurrentCharacter() {
 
         timerId = setInterval(() => {
             remaining--;
+
             timerDisplay.textContent = formatTime(remaining);
 
             if (remaining <= 0) {
@@ -139,74 +189,88 @@ function scrollToCurrentCharacter() {
         }, 1000);
     }
 
-    
-async function saveResult(stats) {
-    if (resultSaved) return;
+    /* ===== Save Results ===== */
 
-    resultSaved = true;
-    saveStatus.textContent = "Saving your results...";
+    async function saveResult(stats) {
+        if (resultSaved) return;
 
-    try {
-        const response = await fetch("/save-result", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                wpm: stats.wpm,
-                accuracy: stats.accuracy,
-                duration_seconds: duration,
-                paragraph_id: paragraphId
-            })
-        });
+        resultSaved = true;
+        saveStatus.textContent = "Saving your results...";
 
-        const data = await response.json();
+        try {
+            const response = await fetch("/save-result", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    wpm: stats.wpm,
+                    accuracy: stats.accuracy,
+                    duration_seconds: duration,
+                    paragraph_id: paragraphId
+                })
+            });
 
-        if (response.ok && data.success) {
-            saveStatus.textContent = data.message;
-        } else {
-            saveStatus.textContent = data.message ||
-                "Unable to save your results.";
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                saveStatus.textContent = data.message;
+            } else {
+                saveStatus.textContent =
+                    data.message || "Unable to save your results.";
+            }
+
+        } catch (error) {
+            console.error("Error saving results:", error);
+
+            saveStatus.textContent =
+                "Unable to connect to the server.";
         }
-
-    } catch (error) {
-        console.error("Error saving results:", error);
-        saveStatus.textContent = "Unable to connect to the server.";
     }
-}
 
+    /* ===== Finish Test ===== */
 
     function finishTest() {
         if (finished) return;
 
         finished = true;
+
         clearInterval(timerId);
+
         typingInput.disabled = true;
 
         const stats = calculateStats();
 
-        testScreen.hidden = true;
-        resultScreen.hidden = false;
-
+        // Display final scores
         finalWpm.textContent = stats.wpm;
         finalAccuracy.textContent = stats.accuracy + "%";
+
+        // Update circular progress
+        updateScoreCircles(stats);
+
         finalTime.textContent = formatTime(
             Math.min(duration, Math.round(stats.elapsed))
         );
+
         finalErrors.textContent = stats.totalErrors;
 
+        testScreen.hidden = true;
+        resultScreen.hidden = false;
+
+        // Save results
         saveResult(stats);
     }
 
+    /* ===== Restart Test ===== */
+
     function resetTest() {
-       
         window.location.reload();
     }
 
+    /* ===== Event Listeners ===== */
+
     paragraphCard.addEventListener("click", () => {
-        if (!finished) {
-            typingInput.focus();
-        }
+        focusTypingInput();
     });
 
     typingInput.addEventListener("input", () => {
@@ -231,14 +295,14 @@ async function saveResult(stats) {
         window.location.href = "/";
     });
 
-    typingText.addEventListener("click", () => {
-        if (!finished) {
-            typingInput.focus();
-        }
-    });
+    /* ===== Initial Setup ===== */
 
     renderParagraph();
-timerDisplay.textContent = formatTime(duration);
 
-typingInput.focus();
+    timerDisplay.textContent = formatTime(duration);
+
+    // Do not automatically open the mobile keyboard
+    if (!isMobile) {
+        focusTypingInput();
+    }
 });
