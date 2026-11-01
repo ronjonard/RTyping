@@ -4,6 +4,7 @@ import hashlib
 import secrets
 import logging
 import resend
+import requests
 
 from datetime import datetime, timedelta
 
@@ -45,19 +46,19 @@ def get_db_connection():
 
 
 # Send password-reset email using Resend
+
 def send_reset_email(recipient, reset_link):
-    api_key = os.getenv("RESEND_API_KEY")
+    gas_url = os.getenv("GAS_EMAIL_URL")
+    gas_secret = os.getenv("GAS_EMAIL_SECRET")
 
-    if not api_key:
-        raise RuntimeError("RESEND_API_KEY is not configured.")
+    if not gas_url or not gas_secret:
+        raise RuntimeError("Google Apps Script settings are missing.")
 
-    resend.api_key = api_key
-
-    params = {
-        "from": os.getenv("MAIL_FROM", "onboarding@resend.dev"),
-        "to": [recipient],
+    payload = {
+        "token": gas_secret,
+        "to": recipient,
         "subject": "Reset Your RTyping Password",
-        "text": (
+        "body": (
             "Hello,\n\n"
             "We received a request to reset your RTyping password.\n\n"
             f"Use this link to choose a new password:\n{reset_link}\n\n"
@@ -66,7 +67,21 @@ def send_reset_email(recipient, reset_link):
         )
     }
 
-    resend.Emails.send(params)
+    response = requests.post(
+        gas_url,
+        json=payload,
+        timeout=30
+    )
+
+    response.raise_for_status()
+
+    result = response.json()
+
+    if not result.get("success"):
+        raise RuntimeError(
+            result.get("message", "Email sending failed.")
+        )
+
 
 
 # Homepage
